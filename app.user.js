@@ -8,6 +8,7 @@
 // @downloadURL https://github.com/mzaini30/keyword-suggest/raw/master/app.user.js
 // @include     https://www.google.com/search*
 // @include     https://play.google.com/store*
+// @include     https://www.youtube.com/*
 // @run-at      document-end
 // @grant       GM_listValues
 // @grant       GM_setValue
@@ -38,6 +39,9 @@ escapeHTMLPolicy = trustedTypes.createPolicy("forceInner", {
 const elemen_baru = document.createElement('div')
 elemen_baru.innerHTML = escapeHTMLPolicy.createHTML(`
 	<style>
+		.html5-video-player, .html5-video-container {
+			z-index: 99999;
+		}
 		.kotak {
 		  position: fixed;
 		  z-index: 9999;
@@ -113,4 +117,27 @@ if (location.href.includes('https://play.google.com/store')){
 		setTimeout(olah_suggest, 1000)
 	}
 	olah_suggest()
+}
+
+if (location.href.includes('https://www.youtube.com/')){
+	let input_pencarian = document.querySelector('input#search')
+	input_pencarian.addEventListener('keyup', olah_suggest)
+
+	function olah_suggest() {
+		let wadah_pencarian = document.querySelector('.sbsb_b[role="listbox"]')
+		if (wadah_pencarian) {
+			let suggest = wadah_pencarian.querySelectorAll('li')
+
+			let data = []
+
+			if (suggest.length > 0) {
+				suggest.forEach(x => data = [...data, x.innerText])
+				data = data.filter(x => x != 'Laporkan prediksi penelusuran')
+				const hasil = data.join('\n')
+				document.querySelector('.kotak textarea').value = hasil
+			}
+		}
+		setTimeout(olah_suggest, 1000)
+	}
+	olah_suggest()	
 }
